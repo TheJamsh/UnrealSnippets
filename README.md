@@ -7,7 +7,7 @@ This repository contains a collection of snippets/utilities/helpers etc. I have 
 ## DISCLAIMER
 No support is provided. If you have some **_sweeeet_** modification or meaningful improvement that could benefit the contents - feel free to suggest it and/or submit a PR.
 
-A license is included in the root folder. Please follow it.
+A [license](License) is included. Please follow it.
 
 ## FAQ
 ### What's with the `##_` Prefixes?
