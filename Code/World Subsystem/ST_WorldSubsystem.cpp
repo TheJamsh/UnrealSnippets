@@ -23,7 +23,7 @@ void FST_WorldSubsystemTickFunction::ExecuteTick(float DeltaTime, ELevelTick Tic
 
 FString FST_WorldSubsystemTickFunction::DiagnosticMessage()
 {
-	return TEXT("HT_WorldManager::Tick()");
+	return TEXT("ST_WorldSubsystem::Tick()");
 }
 
 FName FST_WorldSubsystemTickFunction::DiagnosticContext(bool bDetailed)
@@ -36,7 +36,7 @@ FName FST_WorldSubsystemTickFunction::DiagnosticContext(bool bDetailed)
 ///// Constructor /////
 ///////////////////////
 
-UST_WorldSubsystemBase::UST_WorldSubsystemBase()
+UST_WorldSubsystem::UST_WorldSubsystem()
 	: UWorldSubsystem()
 {
 	SubsystemTickFunction.bCanEverTick = false;
@@ -62,7 +62,7 @@ UST_WorldSubsystemBase::UST_WorldSubsystemBase()
 ///// Lifecycle /////
 /////////////////////
 
-bool UST_WorldSubsystemBase::ShouldCreateSubsystem(UObject* InOuter) const
+bool UST_WorldSubsystem::ShouldCreateSubsystem(UObject* InOuter) const
 {
 	if (Super::ShouldCreateSubsystem(InOuter))
 	{
@@ -94,7 +94,7 @@ bool UST_WorldSubsystemBase::ShouldCreateSubsystem(UObject* InOuter) const
 ///// World Manager /////
 /////////////////////////
 
-void UST_WorldSubsystemBase::Initialize(FSubsystemCollectionBase& Collection)
+void UST_WorldSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
@@ -102,15 +102,15 @@ void UST_WorldSubsystemBase::Initialize(FSubsystemCollectionBase& Collection)
 	check(lWorld && lWorld->IsGameWorld() && lWorld->PersistentLevel != nullptr);
 
 	// Can't actually do safe initialisation until much later...
-	PostInitWorldDelegateHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &URLHWorldSubsystemBase::PostInitWorldInternal);
+	PostInitWorldDelegateHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UST_WorldSubsystem::PostInitWorldInternal);
 
 #if WITH_EDITOR
 	// Editor environment is added fun
-	PostInitWorldPIEDelegateHandle = FEditorDelegates::PostPIEStarted.AddUObject(this, &URLHWorldSubsystemBase::PostInitWorldPIEInternal);
+	PostInitWorldPIEDelegateHandle = FEditorDelegates::PostPIEStarted.AddUObject(this, &UST_WorldSubsystem::PostInitWorldPIEInternal);
 #endif
 }
 
-void URLHWorldSubsystemBase::Deinitialize()
+void UST_WorldSubsystem::Deinitialize()
 {
 	SubsystemTickFunction.UnRegisterTickFunction();
 	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostInitWorldDelegateHandle);
@@ -121,12 +121,12 @@ void URLHWorldSubsystemBase::Deinitialize()
 	Super::Deinitialize();
 }
 
-bool UST_WorldSubsystemBase::DoesSupportWorldType(const EWorldType::Type WorldType) const
+bool UST_WorldSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
 {
 	return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
 }
 
-void UST_WorldSubsystemBase::PostInitWorldInternal(UWorld* NewWorld)
+void UST_WorldSubsystem::PostInitWorldInternal(UWorld* NewWorld)
 {
 	const UWorld* lWorld = GetWorld();
 	if (lWorld && lWorld == NewWorld && !bHasPostWorldInitialized)
@@ -151,7 +151,7 @@ void UST_WorldSubsystemBase::PostInitWorldInternal(UWorld* NewWorld)
 }
 
 #if WITH_EDITOR
-void UST_WorldSubsystemBase::PostInitWorldPIEInternal(bool bSimulating)
+void UST_WorldSubsystem::PostInitWorldPIEInternal(bool bSimulating)
 {
 	PostInitWorldInternal(GetWorld());
 }
@@ -161,7 +161,7 @@ void UST_WorldSubsystemBase::PostInitWorldPIEInternal(bool bSimulating)
 ///// Initialization Checks /////
 /////////////////////////////////
 
-bool UST_WorldSubsystemBase::CheckNetMode(const UWorld* lWorld) const
+bool UST_WorldSubsystem::CheckNetMode(const UWorld* lWorld) const
 {
 	ENetMode MyNetMode = ENetMode::NM_MAX;
 	if (GetSafeNetMode(MyNetMode, lWorld))
@@ -173,7 +173,7 @@ bool UST_WorldSubsystemBase::CheckNetMode(const UWorld* lWorld) const
 	return false;
 }
 
-bool UST_WorldSubsystemBase::CheckLevelName(const UWorld* lWorld) const
+bool UST_WorldSubsystem::CheckLevelName(const UWorld* lWorld) const
 {
 	checkSlow(lWorld);
 
@@ -215,7 +215,7 @@ bool UST_WorldSubsystemBase::CheckLevelName(const UWorld* lWorld) const
 ///// Utilities /////
 /////////////////////
 
-bool UST_WorldSubsystemBase::GetSafeNetMode(ENetMode& OutMode, const UWorld* OverrideWorld /*= nullptr*/) const
+bool UST_WorldSubsystem::GetSafeNetMode(ENetMode& OutMode, const UWorld* OverrideWorld /*= nullptr*/) const
 {
 	const UWorld* lWorld = OverrideWorld ? OverrideWorld : GetWorld();
 	check(lWorld);
