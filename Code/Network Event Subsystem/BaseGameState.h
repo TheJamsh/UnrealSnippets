@@ -1,10 +1,6 @@
 #include "GameFramework/GameState.h"
 #include "BaseGameState.generated.h"
 
-/*
-* Base Game State class
-* Talks to other core RLH systems
-*/
 UCLASS()
 class ABaseGameState : public AGameState
 {
